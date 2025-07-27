@@ -6,7 +6,6 @@ An AI-powered SQL assistant that allows you to interact with your database using
 
 ---
 
-
 ## 📌 Features
 
 - 💬 **Prompt-Based Querying**  
