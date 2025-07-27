@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI SQL Assistant</title>
+  <style>
+    /* Reset and base */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #202123;
+      color: #e6e6e6;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Sidebar */
+    #sidebar {
+      width: 280px;
+      background: #343541;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      border-right: 1px solid #444654;
+      overflow-y: auto;
+    }
+
+    #sidebar h2 {
+      margin-top: 0;
+      font-weight: 600;
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+
+    #new-chat-btn {
+      background-color: #10a37f;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: 600;
+      padding: 12px 16px;
+      cursor: pointer;
+      margin-bottom: 20px;
+      transition: background-color 0.2s ease;
+    }
+
+    #new-chat-btn:hover {
+      background-color: #0e8b6e;
+    }
+
+    #history-list {
+      flex-grow: 1;
+    }
+
+    .history-btn {
+      width: 100%;
+      background: #444654;
+      border: none;
+      border-radius: 5px;
+      color: #e6e6e6;
+      padding: 10px;
+      margin-bottom: 10px;
+      text-align: left;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: background-color 0.15s ease;
+    }
+    .history-btn:hover,
+    .history-btn.active {
+      background: #10a37f;
+      color: white;
+    }
+
+    /* Main content */
+    #main {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      background: #343541;
+      padding: 20px;
+    }
+
+    #chatbox {
+      flex-grow: 1;
+      overflow-y: auto;
+      background: #202123;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #444654;
+      margin-bottom: 15px;
+      font-size: 15px;
+      line-height: 1.5;
+      color: #d1d5db;
+    }
+
+    .user-msg, .bot-msg {
+      padding: 12px 16px;
+      margin-bottom: 15px;
+      max-width: 70%;
+      border-radius: 20px;
+      line-height: 1.4;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 15px;
+    }
+    .user-msg {
+      background-color: #10a37f;
+      color: white;
+      margin-left: auto;
+      border-bottom-right-radius: 2px;
+    }
+    .bot-msg {
+      background-color: #444654;
+      color: #e6e6e6;
+      margin-right: auto;
+      border-bottom-left-radius: 2px;
+    }
+
+    /* Input form */
+    #input-form {
+      display: flex;
+      gap: 10px;
+    }
+    #prompt-input {
+      flex-grow: 1;
+      padding: 14px 18px;
+      font-size: 15px;
+      border-radius: 10px;
+      border: none;
+      background: #2a2b32;
+      color: white;
+    }
+    #prompt-input:focus {
+      outline: none;
+      background: #3a3b44;
+    }
+    #submit-btn {
+      background: #10a37f;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 20px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    #submit-btn:hover {
+      background: #0e8b6e;
+    }
+
+    /* Loading */
+    #loading {
+      text-align: center;
+      margin-bottom: 10px;
+      font-weight: 600;
+      color: #10a37f;
+      display: none;
+    }
+
+    /* Confirmation modal */
+    #confirmation-modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+    #modal-content {
+      background: #202123;
+      border-radius: 12px;
+      padding: 25px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 0 15px #10a37f;
+      text-align: center;
+      color: #e6e6e6;
+    }
+    #modal-content h3 {
+      margin-top: 0;
+      margin-bottom: 15px;
+    }
+    #sql-query {
+      background: #2a2b32;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: left;
+      font-family: monospace;
+      white-space: pre-wrap;
+      margin-bottom: 20px;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+    .modal-btn {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 0 10px;
+      color: white;
+    }
+    #confirm-btn {
+      background-color: #dc3545;
+    }
+    #cancel-btn {
+      background-color: #6c757d;
+    }
+
+    /* Table for SELECT results */
+    .result-table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 10px;
+      background: #2a2b32;
+      border-radius: 8px;
+      overflow: hidden;
+      font-size: 14px;
+    }
+    .result-table th, .result-table td {
+      border: 1px solid #444654;
+      padding: 8px 12px;
+      text-align: left;
+      color: #e6e6e6;
+    }
+    .result-table th {
+      background-color: #10a37f;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div id="sidebar">
+    <button id="new-chat-btn">➕ New Chat</button>
+    <h2>💬 Chat History</h2>
+    <div id="history-list"></div>
+  </div>
+
+  <div id="main">
+    <div id="chatbox"></div>
+    <div id="loading">Thinking...</div>
+    <form id="input-form">
+      <input type="text" id="prompt-input" placeholder="Ask about the student database..." autocomplete="off" />
+      <button id="submit-btn" type="submit">Send</button>
+    </form>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div id="confirmation-modal">
+    <div id="modal-content">
+      <h3>⚠️ Confirmation Required</h3>
+      <p>The AI wants to run the following command that will modify your data. Do you approve?</p>
+      <div id="sql-query"></div>
+      <div>
+        <button id="confirm-btn" class="modal-btn">Confirm & Run</button>
+        <button id="cancel-btn" class="modal-btn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('input-form');
+    const input = document.getElementById
