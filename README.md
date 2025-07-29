@@ -36,7 +36,7 @@ An AI-powered SQL assistant that allows you to interact with your database using
 
 <div align="center">
 
-  <img src="https://i.ibb.co/DSwPJNG/Screenshot-2025-07-27-222941.png" alt="App Screenshot" style="max-width: 100%; height: auto;">
+  <img src="https://i.ibb.co/HDTDcGm4/Screenshot-2025-07-27-222941.png" alt="App Screenshot" style="max-width: 200%; height: auto;">
 
 </div>
 
