@@ -49,3 +49,29 @@ An AI-powered SQL assistant that allows you to interact with your database using
 - **Deployment**: Vercel or Flask local server
 
 ---
+> # Agent
+
+### agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION
+- AgentType: This is an enumeration from LangChain that lists the different pre-built agent architectures you can use.
+ - ZERO_SHOT: This term means the agent is not given any specific examples of how to solve a problem beforehand. It must rely on its general knowledge and the descriptions of the "tools" it has access to (in this case, the database schema) to figure out what to do. It's like giving a skilled chef a box of ingredients they've never seen together and asking them to make a dish—they use their fundamental cooking knowledge to succeed.
+ - REACT: This is an acronym for a framework called "Reason and Act." It's a powerful prompting strategy where the agent follows a specific loop to solve problems:
+ - Thought: The agent first thinks about what it needs to do to answer the user's prompt.
+ - Action: Based on its thought, it decides to take an action. For a SQL agent, the primary action is to use its "SQL tool" to write and execute a query.
+ - Observation: The agent observes the result (or error) of its action.
+The agent repeats this cycle. It looks at the new observation and thinks about the next step until it has the final answer.
+ - DESCRIPTION: This part signifies that the agent heavily relies on the descriptions of the tools it can use. For your SQL agent, it means the agent is given the database schema (table names, column names, types, and relationships) as its "tool description." It uses this description to reason about how to construct a valid SQL query.
+
+> # Working
+
+| Responsibility | Who Does It? | How? |
+| :--- | :--- | :--- |
+| Understanding the user's question | Gemini | Natural Language Understanding (NLU) |
+| Connecting to the database | LangChain | Using the `SQLDatabase` utility |
+| Describing the database schema | LangChain | Inspects the DB and formats a text description |
+| Planning how to answer | Gemini | The "Thought" step in the ReAct framework |
+| Generating the SQL query | Gemini | Code generation based on the schema and prompt |
+| Executing the SQL query | LangChain | Using its `SQLDatabase` tool to run the query |
+| Remembering the conversation | LangChain | Using the `ConversationBufferMemory` module |
+| Interpreting the SQL result | Gemini | Understands that `[(15,)]` means the number 15 |
+| Formulating the final answer | Gemini | Natural Language Generation (NLG) |
+| Managing the entire workflow | LangChain | The `agent_executor` orchestrates the entire loop |
