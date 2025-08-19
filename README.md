@@ -8,7 +8,7 @@ An AI-powered SQL assistant that allows you to interact with your database using
 
 ## 📌 Features
 
-- 💬 **Prompt-Based Querying**  
+- 💬 **Prompt-Based Querying**
   Interact with your database using simple English prompts.  
   Example:  
   - `"Add a new employee named Atul"`  
